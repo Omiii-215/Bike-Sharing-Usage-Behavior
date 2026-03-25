@@ -3,119 +3,188 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-from datetime import datetime
+import logging
+from typing import Optional
 
-# ── Paths ──────────────────────────────────────────────────────────────────
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATASET_DIR = os.path.join(BASE_DIR, 'Dataset')
-OUTPUT_DIR = os.path.join(BASE_DIR, 'Reports', 'Visualizations')
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# ── Load Data ──────────────────────────────────────────────────────────────
-print("📂 Loading datasets...")
-df_hour = pd.read_csv(os.path.join(DATASET_DIR, 'hour.csv'))
-df_day = pd.read_csv(os.path.join(DATASET_DIR, 'day.csv'))
+class BikeSharingProcessor:
+    """
+    Consolidated data processing and EDA for the Bike Sharing Usage Behavior project.
+    Handles data cleaning, feature engineering, and baseline visualization.
+    """
 
-# ── 1. Cleaning Strategy ──────────────────────────────────────────────────
-print("🧹 Cleaning data...")
+    def __init__(self, base_dir: str):
+        self.base_dir = base_dir
+        self.dataset_dir = os.path.join(base_dir, 'Dataset')
+        self.output_dir = os.path.join(base_dir, 'Reports', 'Visualizations')
+        
+        # Ensure output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
+        
+        self.df_hour: Optional[pd.DataFrame] = None
+        self.df_day: Optional[pd.DataFrame] = None
 
-# 1.1 Handle missing hours in hour.csv (Reindexing)
-df_hour['dteday'] = pd.to_datetime(df_hour['dteday'])
-all_hours = pd.date_range(start=df_hour['dteday'].min(), end=df_hour['dteday'].max(), freq='H')
-# Note: Simple reindexing is complex due to the features, so we'll just log the gaps for now 
-# and ensure cnt=0 if we were to impute. For this EDA, we use the raw hourly distribution.
+        # Configuration Constants
+        self.SEASON_MAP = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
+        self.WEATHER_MAP = {1: 'Clear', 2: 'Mist', 3: 'Light Precip', 4: 'Heavy Precip'}
 
-# 1.2 Flag Hurricane Sandy (Oct 29-31, 2012)
-sandy_mask = (df_day['dteday'] >= '2012-10-29') & (df_day['dteday'] <= '2012-10-31')
-df_day['is_anomaly'] = sandy_mask.astype(int)
+    def load_data(self):
+        """Load raw CSV datasets from the Dataset directory."""
+        logger.info("Loading datasets...")
+        try:
+            self.df_hour = pd.read_csv(os.path.join(self.dataset_dir, 'hour.csv'))
+            self.df_day = pd.read_csv(os.path.join(self.dataset_dir, 'day.csv'))
+            logger.info("Datasets loaded successfully.")
+        except FileNotFoundError as e:
+            logger.error(f"Failed to load dataset: {e}")
+            raise
 
-# 1.3 De-normalization
-df_day['temp_c'] = df_day['temp'] * 41
-df_day['atemp_c'] = df_day['atemp'] * 50
-df_day['hum_pct'] = df_day['hum'] * 100
-df_day['windspeed_kmh'] = df_day['windspeed'] * 67
+    def clean_data(self):
+        """Apply data cleaning strategies including de-normalization and anomaly flagging."""
+        if self.df_hour is None or self.df_day is None:
+            logger.error("DataFrames not loaded. Call load_data() first.")
+            return
 
-df_hour['temp_c'] = df_hour['temp'] * 41
-df_hour['atemp_c'] = df_hour['atemp'] * 50
-df_hour['hum_pct'] = df_hour['hum'] * 100
-df_hour['windspeed_kmh'] = df_hour['windspeed'] * 67
+        # Explicitly narrow type for analyzer
+        df_hour: pd.DataFrame = self.df_hour
+        df_day: pd.DataFrame = self.df_day
 
-# 1.4 Categorical Labeling (for plotting)
-season_map = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
-weather_map = {1: 'Clear', 2: 'Mist', 3: 'Light Precip', 4: 'Heavy Precip'}
-df_day['season_lbl'] = df_day['season'].map(season_map)
-df_day['weather_lbl'] = df_day['weathersit'].map(weather_map)
-df_hour['season_lbl'] = df_hour['season'].map(season_map)
-df_hour['weather_lbl'] = df_hour['weathersit'].map(weather_map)
+        logger.info("Cleaning and pre-processing data...")
+        
+        # 1. Convert dates
+        df_hour['dteday'] = pd.to_datetime(df_hour['dteday'])
+        df_day['dteday'] = pd.to_datetime(df_day['dteday'])
 
-# ── 2. Feature Engineering ───────────────────────────────────────────────
-print("⚙️ Engineering features...")
+        # 2. Flag Hurricane Sandy Anomaly (Oct 29-31, 2012)
+        sandy_mask = (df_day['dteday'] >= '2012-10-29') & (df_day['dteday'] <= '2012-10-31')
+        df_day['is_anomaly'] = sandy_mask.astype(int)
 
-# 2.1 Day Segment
-def get_segment(hr):
-    if 0 <= hr < 6: return 'Night'
-    if 6 <= hr < 12: return 'Morning'
-    if 12 <= hr < 18: return 'Afternoon'
-    return 'Evening'
+        # 3. De-normalization of weather/env variables
+        for df in [df_day, df_hour]:
+            df['temp_c'] = df['temp'] * 41
+            df['atemp_c'] = df['atemp'] * 50
+            df['hum_pct'] = df['hum'] * 100
+            df['windspeed_kmh'] = df['windspeed'] * 67
+            
+            # Map categorical labels
+            df['season_lbl'] = df['season'].map(self.SEASON_MAP)
+            df['weather_lbl'] = df['weathersit'].map(self.WEATHER_MAP)
 
-df_hour['day_segment'] = df_hour['hr'].apply(get_segment)
+    def engineer_features(self):
+        """Apply feature engineering for temporal segments and user metrics."""
+        if self.df_hour is None or self.df_day is None:
+            logger.error("DataFrames not loaded. Call load_data() first.")
+            return
+            
+        df_hour: pd.DataFrame = self.df_hour
+        df_day: pd.DataFrame = self.df_day
 
-# 2.2 Peak Hour Flag
-df_hour['is_peak_hour'] = df_hour.apply(lambda x: 1 if (x['workingday'] == 1 and (7 <= x['hr'] <= 9 or 17 <= x['hr'] <= 19)) else 0, axis=1)
+        logger.info("Executing feature engineering blueprint...")
+        
+        # 1. Day Segments (Hourly only)
+        def _get_segment(hr: int) -> str:
+            if 0 <= hr < 6: return 'Night'
+            if 6 <= hr < 12: return 'Morning'
+            if 12 <= hr < 18: return 'Afternoon'
+            return 'Evening'
 
-# 2.3 User Shares
-df_day['casual_share'] = (df_day['casual'] / df_day['cnt']) * 100
-df_day['registered_share'] = (df_day['registered'] / df_day['cnt']) * 100
-df_hour['casual_share'] = (df_hour['casual'] / df_hour['cnt']) * 100
-df_hour['registered_share'] = (df_hour['registered'] / df_hour['cnt']) * 100
+        df_hour['day_segment'] = df_hour['hr'].apply(_get_segment)
 
-# ── 3. Baseline EDA & Visualizations ────────────────────────────────────
-print("📊 Generating visualizations...")
-sns.set_theme(style="whitegrid")
+        # 2. Peak Hour Flag (Commute peaks on workdays)
+        df_hour['is_peak_hour'] = df_hour.apply(
+            lambda x: 1 if (x['workingday'] == 1 and (7 <= x['hr'] <= 9 or 17 <= x['hr'] <= 19)) else 0, 
+            axis=1
+        )
 
-# 3.1 Total Rentals over Time (Trend)
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=df_day, x='dteday', y='cnt', color='teal')
-plt.title('Daily Total Bike Rentals (2011-2012)')
-plt.xticks(rotation=45)
-plt.savefig(os.path.join(OUTPUT_DIR, 'daily_trend.png'), bbox_inches='tight')
-plt.close()
+        # 3. User Type Shares
+        for df in [df_day, df_hour]:
+            df['casual_share'] = (df['casual'] / df['cnt']) * 100
+            df['registered_share'] = (df['registered'] / df['cnt']) * 100
 
-# 3.2 Hourly Patterns by Day Type
-plt.figure(figsize=(12, 6))
-sns.pointplot(data=df_hour, x='hr', y='cnt', hue='workingday', palette='viridis')
-plt.title('Average Hourly Rentals: Workday (1) vs Weekend/Holiday (0)')
-plt.savefig(os.path.join(OUTPUT_DIR, 'hourly_pattern.png'), bbox_inches='tight')
-plt.close()
+    def generate_eda(self):
+        """Generate and save baseline visualizations to the Reports directory."""
+        if self.df_hour is None or self.df_day is None:
+            logger.error("DataFrames not loaded. Call load_data() first.")
+            return
 
-# 3.3 Weather Impact (Temperature vs Count)
-plt.figure(figsize=(10, 6))
-sns.scatterplot(data=df_day, x='temp_c', y='cnt', hue='weather_lbl', palette='coolwarm')
-plt.title('Impact of Temperature and Weather Situation on Rentals')
-plt.savefig(os.path.join(OUTPUT_DIR, 'weather_impact.png'), bbox_inches='tight')
-plt.close()
+        df_hour: pd.DataFrame = self.df_hour
+        df_day: pd.DataFrame = self.df_day
 
-# 3.4 Seasonal Distribution (Casual vs Registered)
-df_seasonal = df_day.groupby('season_lbl')[['casual', 'registered']].sum().reset_index()
-df_seasonal = df_seasonal.melt(id_vars='season_lbl', var_name='User Type', value_name='Total Rentals')
+        logger.info("Generating EDA visualizations...")
+        sns.set_theme(style="whitegrid")
 
-plt.figure(figsize=(10, 6))
-sns.barplot(data=df_seasonal, x='season_lbl', y='Total Rentals', hue='User Type', palette='muted')
-plt.title('Seasonal Distribution: Casual vs Registered Users')
-plt.savefig(os.path.join(OUTPUT_DIR, 'seasonal_distribution.png'), bbox_inches='tight')
-plt.close()
+        # Visual 1: Daily Total Trend
+        plt.figure(figsize=(12, 6))
+        sns.lineplot(data=df_day, x='dteday', y='cnt', color='teal')
+        plt.title('Daily Total Bike Rentals (2011-2012)')
+        plt.xticks(rotation=45)
+        plt.savefig(os.path.join(self.output_dir, 'daily_trend.png'), bbox_inches='tight')
+        plt.close()
 
-# ── 4. Save Cleaned Data ────────────────────────────────────────────────
-print("💾 Saving cleaned datasets...")
-df_day.to_csv(os.path.join(DATASET_DIR, 'cleaned_day.csv'), index=False)
-df_hour.to_csv(os.path.join(DATASET_DIR, 'cleaned_hour.csv'), index=False)
+        # Visual 2: Hourly Patterns
+        plt.figure(figsize=(12, 6))
+        sns.pointplot(data=df_hour, x='hr', y='cnt', hue='workingday', palette='viridis')
+        plt.title('Average Hourly Rentals: Workday vs Weekend/Holiday')
+        plt.savefig(os.path.join(self.output_dir, 'hourly_pattern.png'), bbox_inches='tight')
+        plt.close()
 
-# ── 5. Data Quality Report Summary ──────────────────────────────────────
-print("\n📝 Data Quality Report Summary")
-print("-" * 30)
-print(f"Total Daily Records: {len(df_day)}")
-print(f"Total Hourly Records: {len(df_hour)}")
-print(f"Anomalous Days (Sandy): {df_day['is_anomaly'].sum()}")
-print(f"Missing Values: {df_hour.isnull().sum().sum()}")
-print(f"Duplicates: {df_hour.duplicated().sum()}")
-print("-" * 30)
-print("✅ Processing complete!")
+        # Visual 3: Weather/Temp Impact
+        plt.figure(figsize=(10, 6))
+        sns.scatterplot(data=df_day, x='temp_c', y='cnt', hue='weather_lbl', palette='coolwarm')
+        plt.title('Environmental Impact on Rental Counts')
+        plt.savefig(os.path.join(self.output_dir, 'weather_impact.png'), bbox_inches='tight')
+        plt.close()
+
+        # Visual 4: Seasonal Distribution
+        df_seasonal = df_day.groupby('season_lbl')[['casual', 'registered']].sum().reset_index()
+        df_seasonal = df_seasonal.melt(id_vars='season_lbl', var_name='User Type', value_name='Total Rentals')
+        plt.figure(figsize=(10, 6))
+        sns.barplot(data=df_seasonal, x='season_lbl', y='Total Rentals', hue='User Type', palette='muted')
+        plt.title('Seasonal User Segmentation')
+        plt.savefig(os.path.join(self.output_dir, 'seasonal_distribution.png'), bbox_inches='tight')
+        plt.close()
+
+    def save_results(self):
+        """Save cleaned datasets to CSV files."""
+        if self.df_hour is None or self.df_day is None:
+            logger.error("DataFrames not loaded. Call load_data() first.")
+            return
+
+        logger.info("Saving cleaned datasets...")
+        self.df_day.to_csv(os.path.join(self.dataset_dir, 'cleaned_day.csv'), index=False)
+        self.df_hour.to_csv(os.path.join(self.dataset_dir, 'cleaned_hour.csv'), index=False)
+        logger.info("Data export complete.")
+
+    def run_pipeline(self):
+        """Execute the full processing pipeline."""
+        self.load_data()
+        self.clean_data()
+        self.engineer_features()
+        self.generate_eda()
+        self.save_results()
+        
+        # Summary Report
+        if self.df_hour is not None and self.df_day is not None:
+            df_hour: pd.DataFrame = self.df_hour
+            df_day: pd.DataFrame = self.df_day
+            print("\nDATA QUALITY REPORT SUMMARY")
+            print("=" * 30)
+            print(f"Total Daily Records        : {len(df_day)}")
+            print(f"Total Hourly Records       : {len(df_hour)}")
+            print(f"Anomalous Days (Sandy)     : {df_day['is_anomaly'].sum()}")
+            print(f"Null Values Detected       : {df_hour.isnull().sum().sum()}")
+            print(f"Duplicate Rows Detected    : {df_hour.duplicated().sum()}")
+            print("=" * 30)
+            logger.info("Processing pipeline executed successfully.")
+        else:
+            logger.error("Pipeline failed: DataFrames are missing.")
+
+if __name__ == "__main__":
+    # Define project root (one level up from scripts directory)
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    processor = BikeSharingProcessor(base_dir=project_root)
+    processor.run_pipeline()
