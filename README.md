@@ -205,3 +205,52 @@ Bike-Sharing-Usage-Behavior/
 - Column count matches documentation (day=16, hour=17)
 
 ---
+
+## KPI Definitions
+
+### Category 1: Peak Usage Detection
+
+| KPI | Definition | Formula |
+|-----|-----------|---------|
+| **Peak Hour Index** | Top-3 busiest hours per day type | `argmax(avg_cnt by hr)` grouped by `workingday` |
+| **Daily Peak Count** | Max daily rental count per month | `max(cnt) group by mnth, yr` |
+| **Rush-Hour Concentration** | % of daily rentals during peak hours (7–9 AM, 5–7 PM) | `sum(cnt_peak) / sum(cnt)` × 100 |
+
+### Category 2: Weather Sensitivity Metrics
+
+| KPI | Definition | Formula |
+|-----|-----------|---------|
+| **Weather-Rental Correlation** | Pearson correlation temp ↔ cnt | `corr(temp, cnt)` |
+| **Bad-Weather Drop %** | Rental drop in weathersit≥3 vs 1 | `(avg_clear - avg_bad) / avg_clear` × 100 |
+| **Temperature Threshold** | Temp below which avg daily cnt < 2,000 | Conditional mean analysis |
+| **Humidity Impact Score** | Regression coefficient of hum on cnt | Partial correlation / OLS β |
+
+### Category 3: User Growth & Retention
+
+| KPI | Definition | Formula |
+|-----|-----------|---------|
+| **YoY Growth Rate** | Year-over-year growth in total rentals | `(total_2012 - total_2011) / total_2011` × 100 |
+| **Casual-to-Registered Ratio** | Monthly casual/registered ratio | `sum(casual) / sum(registered)` |
+| **Weekend Casual Share** | % of weekend rentals that are casual | `sum(casual_wknd) / sum(cnt_wknd)` × 100 |
+| **Seasonal Registered Growth** | Registered user growth per season YoY | Compare seasonal totals |
+
+### Category 4: Decision-Support Metrics
+
+| KPI | Definition | Formula |
+|-----|-----------|---------|
+| **Predicted Demand** | Estimated daily demand from weather | Regression model output |
+| **Redistribution Trigger** | Hours exceeding capacity threshold | `predicted_cnt > threshold` |
+| **Maintenance Window** | Optimal low-demand hours | Hours with `avg_cnt < P10` |
+| **Pricing Signal** | Demand elasticity by user type | `casual_peak / casual_offpeak` |
+
+### Measurement Schedule
+
+| Frequency | KPIs |
+|-----------|------|
+| **Daily** | Peak Hour Index, Daily Peak Count |
+| **Weekly** | Rush-Hour Concentration, Weekend Casual Share |
+| **Monthly** | Weather-Rental Correlation, Casual-to-Registered Ratio |
+| **Quarterly** | Seasonal Registered Growth, YoY Growth Rate |
+| **Ad-hoc** | Predicted Demand, Redistribution Trigger, Maintenance Window |
+
+---
