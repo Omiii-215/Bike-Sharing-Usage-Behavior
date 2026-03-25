@@ -172,3 +172,36 @@ Bike-Sharing-Usage-Behavior/
 | Mean | ~0.496 | ~0.474 | ~0.628 | ~0.190 | ~848 | ~3,656 | ~4,504 |
 
 ---
+
+## Known Caveats & Data Quality
+
+### Null & Missing Values
+- **No null values** in either CSV
+- Some hours (typically 3–5 AM) are absent from `hour.csv` — likely had zero rentals and were dropped
+
+### Outliers & Anomalies
+
+| Record | Date | Issue | Likely Cause |
+|--------|------|-------|--------------|
+| day.csv row 668 | 2012-10-29 | `cnt = 22` | **Hurricane Sandy** |
+| day.csv row 669 | 2012-10-30 | `cnt = 1096` | Post-hurricane recovery |
+| day.csv row 70 | 2011-03-10 | `hum = 0.0` | Sensor error |
+
+### Encoding Notes
+- Season `1` labeled "springer" (sic) in original — means **Spring**
+- Weekday `0` = Sunday (differs from Python's `datetime.weekday()` where 0 = Monday)
+- `weathersit = 4` rare in hourly, effectively absent from daily aggregation
+- Year `0/1` instead of `2011/2012` — needs mapping
+
+### Temporal Notes
+- DST transitions not explicitly handled
+- Feb 29, 2012 included (leap year)
+- 2012 has systematically higher counts (system growth), which should be accounted for in models
+
+### Data Integrity ✅
+- `cnt == casual + registered` — 100% pass on all rows
+- Unique `instant` values — no duplicates
+- 731 consecutive days — no gaps
+- Column count matches documentation (day=16, hour=17)
+
+---
