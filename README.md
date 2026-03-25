@@ -69,3 +69,73 @@ Bike-Sharing-Usage-Behavior/
 └── README.md                       # This file
 ```
 
+---
+
+## Dataset
+
+- **Source**: [UCI Machine Learning Repository — Bike Sharing Dataset](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset)
+- **Original Author**: Hadi Fanaee-T, LIAAD / INESC Porto, University of Porto
+- **System**: Capital Bikeshare, Washington D.C., USA
+- **Period**: January 2011 – December 2012
+
+| File | Granularity | Records | Columns | Size |
+|------|-------------|---------|---------|------|
+| `day.csv` | Daily | 731 rows | 16 | ~57 KB |
+| `hour.csv` | Hourly | 17,379 rows | 17 (includes `hr`) | ~1.1 MB |
+
+---
+
+## Data Dictionary
+
+### Identifiers & Date
+| Variable | Type | Description |
+|----------|------|-------------|
+| `instant` | Integer | Record index (auto-increment) |
+| `dteday` | Date | Date of observation (YYYY-MM-DD) |
+
+### Temporal Features
+| Variable | Type | Values | Description |
+|----------|------|--------|-------------|
+| `season` | Categorical | 1=Spring, 2=Summer, 3=Fall, 4=Winter | Season of the year |
+| `yr` | Binary | 0=2011, 1=2012 | Year |
+| `mnth` | Integer | 1–12 | Month |
+| `hr`* | Integer | 0–23 | Hour of the day (**hour.csv only**) |
+| `holiday` | Binary | 0/1 | Whether it is a public holiday |
+| `weekday` | Integer | 0–6 | Day of the week (0=Sunday) |
+| `workingday` | Binary | 0/1 | 1 if neither weekend nor holiday |
+
+### Weather Features (Normalized)
+| Variable | Type | Range | Description |
+|----------|------|-------|-------------|
+| `weathersit` | Categorical | 1–4 | Weather situation (see codes below) |
+| `temp` | Float | 0–1 | Normalized temperature (actual / 41°C) |
+| `atemp` | Float | 0–1 | Normalized feeling temperature (actual / 50°C) |
+| `hum` | Float | 0–1 | Normalized humidity (actual / 100%) |
+| `windspeed` | Float | 0–1 | Normalized wind speed (actual / 67 km/h) |
+
+### Target Variables
+| Variable | Type | Description |
+|----------|------|-------------|
+| `casual` | Integer | Count of casual (walk-up) users |
+| `registered` | Integer | Count of registered subscribers |
+| `cnt` | Integer | Total rental count (`casual + registered`) |
+
+### Weather Situation Codes
+
+| Code | Category | Description |
+|------|----------|-------------|
+| 1 | **Clear** | Clear, Few clouds, Partly cloudy |
+| 2 | **Mist** | Mist + Cloudy, Mist + Broken clouds |
+| 3 | **Light Precip** | Light Snow, Light Rain + Thunderstorm |
+| 4 | **Heavy Precip** | Heavy Rain + Ice Pallets + Snow + Fog |
+
+### De-normalization Formulas
+
+| Field | Formula | Unit |
+|-------|---------|------|
+| `temp` | value × 41 | °C |
+| `atemp` | value × 50 | °C |
+| `hum` | value × 100 | % |
+| `windspeed` | value × 67 | km/h |
+
+---
