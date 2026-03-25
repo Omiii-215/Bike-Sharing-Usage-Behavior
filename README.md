@@ -368,22 +368,22 @@ Bike-Sharing-Usage-Behavior/
 #### A. Daily Rental Trend (2011–2012)
 The time-series shows a clear upward trend from 2011 to 2012, indicating rapid system growth, alongside strong seasonal oscillations.
 
-![Daily Rental Trend](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/daily_trend.png)
+![Daily Rental Trend](Reports/Visualizations/daily_trend.png)
 
 #### B. Hourly Pattern: Workday vs. Non-Workday
 Workdays show a distinct bimodal distribution with peaks at 8 AM and 5 PM. Weekends/Holidays show a unimodal distribution with a broad peak from 10 AM to 4 PM.
 
-![Hourly Pattern](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/hourly_pattern.png)
+![Hourly Pattern](Reports/Visualizations/hourly_pattern.png)
 
 #### C. Weather Impact: Temperature vs. Count
 There is a strong positive correlation between temperature and rental volume. Higher density of rentals occurs in "Clear" and "Mist" weather conditions, with significant drops in "Light Precipitation".
 
-![Weather Impact](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/weather_impact.png)
+![Weather Impact](Reports/Visualizations/weather_impact.png)
 
 #### D. Seasonal Distribution: User Types
 Fall and Summer attract the most riders. Registered users dominate across all seasons, but casual ridership peaks significantly during the Summer and Fall periods.
 
-![Seasonal Distribution](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/seasonal_distribution.png)
+![Seasonal Distribution](Reports/Visualizations/seasonal_distribution.png)
 
 ### 3. Key Findings
 - **Commuters** (registered) drive the dual-peak productivity on workdays.
