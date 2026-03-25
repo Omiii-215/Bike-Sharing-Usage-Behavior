@@ -254,3 +254,62 @@ Bike-Sharing-Usage-Behavior/
 | **Ad-hoc** | Predicted Demand, Redistribution Trigger, Maintenance Window |
 
 ---
+
+## Dashboard Wireframe
+
+### Layout Overview
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  🚲 BIKE SHARING ANALYTICS DASHBOARD        [Date Range Filter] │
+│                                              [Season Filter    ] │
+│                                              [User Type Filter ] │
+├──────────────┬─────────────┬─────────────────┬───────────────────┤
+│ TOTAL RIDES  │ AVG DAILY   │ CASUAL SHARE    │ YOY GROWTH       │
+│ (KPI Card)   │ (KPI Card)  │ (KPI Card)      │ (KPI Card)       │
+└──────────────┴─────────────┴─────────────────┴───────────────────┘
+```
+
+### Page 1: Usage Trends
+
+| Component | Chart Type | Axes |
+|-----------|-----------|------|
+| Daily Rental Trend | Line chart | X: date, Y: cnt (split casual/registered) |
+| Hourly Usage Heatmap | Heatmap | X: hr (0–23), Y: weekday |
+| Monthly Avg Comparison | Grouped bar | X: month, Y: avg(cnt), Groups: 2011 vs 2012 |
+| Peak Hours | Horizontal bar | X: avg(cnt), Y: hr, Split: weekday vs weekend |
+
+### Page 2: Weather Impact
+
+| Component | Chart Type | Axes |
+|-----------|-----------|------|
+| Temperature vs Rentals | Scatter | X: temp, Y: cnt, Color: weathersit |
+| Humidity vs Rentals | Scatter | X: hum, Y: cnt, Overlay: trend line |
+| Weather Breakdown | Stacked bar | X: weathersit, Y: avg(cnt), Split: casual/registered |
+| Wind Speed Impact | Box plot | X: windspeed quartile, Y: cnt |
+
+### Page 3: User Segmentation
+
+| Component | Chart Type | Axes |
+|-----------|-----------|------|
+| Casual vs Registered | Dual line | X: month, Y: sum, Split: user type |
+| Day-Type Split | 100% stacked bar | X: weekday, Y: share %, Split: user type |
+| Seasonal Distribution | Donut × 4 | Per season: casual vs registered share |
+| Holiday Comparison | Bar | X: holiday status, Y: avg(cnt) |
+
+### Page 4: Distribution Insights
+
+| Component | Chart Type | Axes |
+|-----------|-----------|------|
+| Rental Distribution | Histogram | X: cnt bins, Y: frequency, Overlay: normal curve |
+| Stats Table | Table | Skewness, Kurtosis, Std per season |
+| Outlier Detection | Box plot | X: season, Y: cnt with IQR |
+| Correlation Matrix | Heatmap | temp, atemp, hum, windspeed, cnt |
+
+### Interactivity
+- Global Date Range Slicer
+- Season Slicer (multi-select)
+- User Type Toggle (casual / registered / both)
+- Cross-page drill-through
+- Tooltip-on-hover with exact values
+
