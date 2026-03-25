@@ -139,3 +139,36 @@ Bike-Sharing-Usage-Behavior/
 | `windspeed` | value × 67 | km/h |
 
 ---
+
+## Dataset Understanding
+
+### Key Observations
+
+- **Growth Year-over-Year**: 2012 rentals are substantially higher than 2011 across all months
+- **Strong Seasonality**: Fall & Summer show highest usage; Spring is lowest
+- **Registered Dominance**: Registered users account for ~81% of all rides; casual ~19%
+- **Weather Sensitivity**: `weathersit=4` (heavy rain/snow) virtually kills demand (e.g., Oct 29, 2012: cnt=22)
+- **Holiday Dip**: Rental counts generally dip on holidays, especially for registered commuters
+- **Temperature Correlation**: Strong positive correlation between `temp`/`atemp` and `cnt`
+- **Humidity Inverse**: Higher humidity generally correlates with lower ridership
+
+### Weekday vs Weekend Patterns
+- **Weekdays** (workingday=1): Dominated by registered users (commute pattern)
+- **Weekends** (workingday=0): Casual user share increases significantly (leisure pattern)
+
+### Hourly Patterns (hour.csv)
+- **Morning Rush**: 7–9 AM (registered-heavy, commute)
+- **Evening Rush**: 5–7 PM (registered-heavy, commute)
+- **Midday on Weekends**: 10 AM–4 PM (casual-heavy, recreation)
+- **Bimodal commute peaks** on workdays; **unimodal wide midday peak** on weekends
+- `hr=17` (5 PM) consistently has the highest average `cnt`
+
+### Numerical Summary (day.csv)
+
+| Statistic | temp | atemp | hum | windspeed | casual | registered | cnt |
+|-----------|------|-------|-----|-----------|--------|------------|-----|
+| Min | 0.059 | 0.079 | 0.0 | 0.022 | 2 | 20 | 22 |
+| Max | 0.862 | 0.841 | 0.973 | 0.507 | 3,410 | 6,946 | 8,714 |
+| Mean | ~0.496 | ~0.474 | ~0.628 | ~0.190 | ~848 | ~3,656 | ~4,504 |
+
+---
