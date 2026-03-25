@@ -313,3 +313,22 @@ Bike-Sharing-Usage-Behavior/
 - Cross-page drill-through
 - Tooltip-on-hover with exact values
 
+---
+
+## Project Documents
+
+| Document | Location |
+|----------|----------|
+| PRD | [Google Doc](https://docs.google.com/document/d/1S4fzkBiibUokFot5IaWHlgaMSWwkMwmMSXbreau7LUo/edit?tab=t.0) |
+| Consumer Flow Diagram | `Diagrams/Consumer Flow Diagram.png` |
+| Data Flow Diagram | `Diagrams/Data Flow Diagram.png` |
+| High-Level Design | `Diagrams/HLD - HIgh level Diagram.png` |
+| Low-Level Design | `Diagrams/LLD - Final.png` |
+
+---
+
+## License
+
+Dataset citation required per UCI terms:
+> Fanaee-T, Hadi, and Gama, Joao. *"Event labeling combining ensemble detectors and background knowledge."*  
+> Progress in Artificial Intelligence (2013): pp. 1-15, Springer Berlin Heidelberg.
