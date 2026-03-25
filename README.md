@@ -315,6 +315,84 @@ Bike-Sharing-Usage-Behavior/
 
 ---
 
+## Cleaning Strategy Plan (Week 3)
+
+### 1. Handling Missing Hourly Records
+- `hour.csv` contains gaps (e.g., 3–5 AM). 
+- **Action**: Use a `RangeIndex` or `Reindexing` strategy to ensure a continuous 24-hour timeline per day. Fill missing counts with `0`.
+
+### 2. Anomalous Record Management
+- **Action**: Create a `is_anomaly` flag for the Hurricane Sandy period (Oct 29–31, 2012).
+- **Rationale**: Keeps the data for completeness but allows filtering for trend modeling.
+
+### 3. Feature De-normalization
+- **Action**: Create new columns `temp_c`, `atemp_c`, `hum_pct`, and `windspeed_kmh` using the UCI formulas.
+- **Rationale**: Improves interpretability for EDA and stakeholders.
+
+### 4. Categorical Labeling
+- **Action**: Map integer codes to human-readable labels:
+  - `season`: 1 → Spring, 2 → Summer, etc.
+  - `weathersit`: 1 → Clear, 2 → Mist, etc.
+  - `yr`: 0 → 2011, 1 → 2012.
+
+---
+
+## Feature Engineering Blueprint (Week 3)
+
+### 1. Temporal Engineering
+- **`day_segment`**: Categorize `hr` into `Night` (0-6), `Morning` (6-12), `Afternoon` (12-18), `Evening` (18-24).
+- **`is_peak_hour`**: Boolean flag for commute peaks (7-9 AM, 5-7 PM) on `workingday=1`.
+- **`is_weekend`**: Boolean derived from `workingday` and `holiday`.
+
+### 2. Environmental Engineering
+- **`temp_category`**: Bin `temp_c` into `Cold` (<10°C), `Mild` (10-20°C), `Warm` (20-30°C), `Hot` (>30°C).
+- **`weather_severity`**: Aggregate `weathersit` into `Good` (1), `Moderate` (2), and `Bad` (3, 4).
+
+### 3. User Behavior Metrics
+- **`casual_share`**: Percentage of total rentals that are casual users (`casual / cnt * 100`).
+- **`registered_share`**: Percentage of total rentals that are registered subscribers (`registered / cnt * 100`).
+
+---
+
+## Week 4: Data Processing & EDA
+
+### 1. Data Quality Report
+- **Total Records**: 731 Daily, 17,379 Hourly.
+- **Missing Values**: 0 (systmatically checked).
+- **Duplicates**: 0.
+- **Anomalies**: 3 days identified during Hurricane Sandy (Oct 29–31, 2012) and flagged.
+- **Cleaned Datasets**: [`Dataset/cleaned_day.csv`](file:///Users/zenx/Bike-Sharing-Usage-Behavior/Dataset/cleaned_day.csv), [`Dataset/cleaned_hour.csv`](file:///Users/zenx/Bike-Sharing-Usage-Behavior/Dataset/cleaned_hour.csv).
+
+### 2. Baseline EDA & Visualizations
+
+#### A. Daily Rental Trend (2011–2012)
+The time-series shows a clear upward trend from 2011 to 2012, indicating rapid system growth, alongside strong seasonal oscillations.
+
+![Daily Rental Trend](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/daily_trend.png)
+
+#### B. Hourly Pattern: Workday vs. Non-Workday
+Workdays show a distinct bimodal distribution with peaks at 8 AM and 5 PM. Weekends/Holidays show a unimodal distribution with a broad peak from 10 AM to 4 PM.
+
+![Hourly Pattern](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/hourly_pattern.png)
+
+#### C. Weather Impact: Temperature vs. Count
+There is a strong positive correlation between temperature and rental volume. Higher density of rentals occurs in "Clear" and "Mist" weather conditions, with significant drops in "Light Precipitation".
+
+![Weather Impact](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/weather_impact.png)
+
+#### D. Seasonal Distribution: User Types
+Fall and Summer attract the most riders. Registered users dominate across all seasons, but casual ridership peaks significantly during the Summer and Fall periods.
+
+![Seasonal Distribution](file:///Users/zenx/.gemini/antigravity/brain/3368eacb-c751-4005-a539-f23d3d9f3277/seasonal_distribution.png)
+
+### 3. Key Findings
+- **Commuters** (registered) drive the dual-peak productivity on workdays.
+- **Leisure riders** (casual) drive the midday weekend peaks.
+- **Seasonality** is the strongest predictor of volume after time-of-day.
+- **System Growth** is near 50% year-over-year.
+
+---
+
 ## Project Documents
 
 | Document | Location |
