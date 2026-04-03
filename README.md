@@ -393,6 +393,32 @@ Fall and Summer attract the most riders. Registered users dominate across all se
 
 ---
 
+### 3. Statistical Analysis Visualizations
+
+#### A. Rental Distribution
+The density histogram with a normal curve overlay confirms the daily total rentals (`cnt`) is slightly non-normal, failing the Shapiro-Wilk test.
+![Rental Distribution](Reports/Visualizations/rental_distribution.png)
+
+#### B. Correlation Matrix
+The heatmap visualizes Pearson correlations between continuous weather variables and ridership, confirming temperature as the strongest driver.
+![Correlation Matrix](Reports/Visualizations/correlation_matrix.png)
+
+---
+
+## Week 5: Distribution & Correlation Analysis
+
+### 1. Distribution Fitting
+Using the Shapiro-Wilk test, we determined that the total daily rentals (`cnt`), `casual`, and `registered` ridership do not follow a strict normal distribution (all returned $p < 0.05$). The `casual` distribution shows a moderate positive skewness (~1.26), indicating that casual rentals are typically low but experience extreme spikes on optimal leisure days.
+
+### 2. Seasonality Analysis
+Bike rentals exhibit massive seasonal variance. Fall and Summer represent the absolute peaks of ridership, while Spring represents the lowest usage.
+
+### 3. Correlation Analysis
+Pearson and Spearman correlation tests against environmental variables confirm:
+- **Temperature (`temp_c`)**: Strongest positive predictor of bike rentals (0.63 correlation with `cnt`).
+- **Wind & Humidity**: Showed statistically significant but weak negative correlations with ridership. Riders are particularly averse to high windspeeds.
+
+
 ## Project Documents
 
 | Document | Location |
