@@ -1,0 +1,101 @@
+BIKE SHARING STATISTICAL ANALYSIS REPORT
+========================================
+
+=== 1. Distribution Analysis (Skewness & Kurtosis) ===
+
+Variable: cnt
+  - Skewness: -0.0380 (Ideal: ~0)
+  - Kurtosis: -0.8234 (Ideal: ~0 for normal distribution)
+  - Shapiro-Wilk p-value: 1.3266e-08
+  - Conclusion: Non-normal distribution
+
+Variable: casual
+  - Skewness: 1.2620 (Ideal: ~0)
+  - Kurtosis: 1.2983 (Ideal: ~0 for normal distribution)
+  - Shapiro-Wilk p-value: 8.3339e-23
+  - Conclusion: Non-normal distribution
+
+Variable: registered
+  - Skewness: 0.0548 (Ideal: ~0)
+  - Kurtosis: -0.7223 (Ideal: ~0 for normal distribution)
+  - Shapiro-Wilk p-value: 2.4657e-07
+  - Conclusion: Non-normal distribution
+
+=== 2. Correlation Analysis (Weather vs Rentals) ===
+
+Target: casual
+  temp_c:
+    Pearson:  0.5424 (p=6.3721e-57)
+    Spearman: 0.6665 (p=1.0664e-94)
+  atemp_c:
+    Pearson:  0.5431 (p=4.3048e-57)
+    Spearman: 0.6669 (p=8.1779e-95)
+  hum_pct:
+    Pearson:  -0.0721 (p=5.1924e-02)
+    Spearman: -0.0639 (p=8.5016e-02)
+  windspeed_kmh:
+    Pearson:  -0.1647 (p=7.9678e-06)
+    Spearman: -0.1765 (p=1.6483e-06)
+
+Target: registered
+  temp_c:
+    Pearson:  0.5418 (p=8.9813e-57)
+    Spearman: 0.5320 (p=1.9913e-54)
+  atemp_c:
+    Pearson:  0.5461 (p=7.9742e-58)
+    Spearman: 0.5327 (p=1.3208e-54)
+  hum_pct:
+    Pearson:  -0.0834 (p=2.4477e-02)
+    Spearman: -0.0871 (p=1.8794e-02)
+  windspeed_kmh:
+    Pearson:  -0.2115 (p=8.3164e-09)
+    Spearman: -0.1987 (p=6.4077e-08)
+
+Target: cnt
+  temp_c:
+    Pearson:  0.6292 (p=1.6075e-81)
+    Spearman: 0.6228 (p=1.9857e-79)
+  atemp_c:
+    Pearson:  0.6329 (p=9.4506e-83)
+    Spearman: 0.6236 (p=1.0987e-79)
+  hum_pct:
+    Pearson:  -0.0928 (p=1.2273e-02)
+    Spearman: -0.0917 (p=1.3299e-02)
+  windspeed_kmh:
+    Pearson:  -0.2289 (p=4.1576e-10)
+    Spearman: -0.2132 (p=6.3015e-09)
+
+=== 3. T-Tests (Working Day vs Non-Working Day) ===
+
+Variable: casual
+  - Working Day Mean:     609.2
+  - Non-Working Day Mean: 1371.1
+  - Welch t-statistic:    -12.6859
+  - p-value:              2.5622e-29
+  - Significant Difference: Yes
+
+Variable: registered
+  - Working Day Mean:     3989.8
+  - Non-Working Day Mean: 2959.0
+  - Welch t-statistic:    9.3619
+  - p-value:              2.1934e-19
+  - Significant Difference: Yes
+
+Variable: cnt
+  - Working Day Mean:     4599.0
+  - Non-Working Day Mean: 4330.2
+  - Welch t-statistic:    1.6926
+  - p-value:              9.1288e-02
+  - Significant Difference: No
+
+=== 4. One-Way ANOVA (Seasons & Weather) ===
+
+### Seasonal Differences (Target: cnt) ###
+  F-statistic: 131.3761
+  p-value:     6.0021e-68
+  Significant: Yes
+
+### Weather Situation Differences (Target: cnt) ###
+  F-statistic: 37.3894
+  p-value:     3.5150e-16
+  Significant: Yes

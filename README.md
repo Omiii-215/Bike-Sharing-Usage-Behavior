@@ -418,6 +418,30 @@ Pearson and Spearman correlation tests against environmental variables confirm:
 - **Temperature (`temp_c`)**: Strongest positive predictor of bike rentals (0.63 correlation with `cnt`).
 - **Wind & Humidity**: Showed statistically significant but weak negative correlations with ridership. Riders are particularly averse to high windspeeds.
 
+#### C. Outlier Detection
+Box plots demonstrate the spread and interquartile range (IQR) of total rentals segregated by season, highlighting the differences in medians across seasons.
+![Outliers by Season](Reports/Visualizations/outliers_by_season.png)
+
+---
+
+## Week 6: Statistical Validation & Segmentation
+
+### 1. Segmentation by User Type & Time
+We segmented user behavior by `workingday` (0 = weekend/holiday, 1 = workday):
+- **Casual Users**: Showed a massive spike on non-working days.
+- **Registered Users**: Showed a massive spike on working days.
+
+### 2. Quantified Deltas (T-Tests)
+Welch's Independent T-Test was utilized to validate the segmentation:
+- **Casual Delta**: Rose from average 609 on working days to 1371 on non-working days. The difference is extremely significant ($p \ll 0.05$, $t = -12.68$).
+- **Registered Delta**: Stood at 3989 on working days vs. 2959 on non-working days ($p \ll 0.05$, $t = 9.36$).
+- **Total Count (`cnt`) Delta**: The two segments counterbalance each other so perfectly that total volume technically experiences no statistically significant difference between working and non-working days ($p = 0.091$).
+
+### 3. ANOVA Validation for Categorical Variables
+We utilized One-Way ANOVA to validate whether variance in the total rental count is genuinely dictated by categorical groups:
+- **Weather Situation**: Strongly validated ($F = 37.38$, $p = 3.51 \times 10^{-16}$). Demand drops demonstrably from Clear to Light Precip.
+- **Seasonality**: Strongly validated ($F = 131.37$, $p = 6.00 \times 10^{-68}$).
+
 
 ## Project Documents
 
