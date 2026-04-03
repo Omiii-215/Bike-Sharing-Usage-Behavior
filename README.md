@@ -442,6 +442,32 @@ We utilized One-Way ANOVA to validate whether variance in the total rental count
 - **Weather Situation**: Strongly validated ($F = 37.38$, $p = 3.51 \times 10^{-16}$). Demand drops demonstrably from Clear to Light Precip.
 - **Seasonality**: Strongly validated ($F = 131.37$, $p = 6.00 \times 10^{-68}$).
 
+---
+
+## Week 7: Insight & Impact Summary
+
+### Top 5 Findings & Hypotheses
+
+#### 1. The "Counterbalancing" Effect of User Types
+**Finding:** Total daily bike volume (`cnt`) is statistically identical between workdays and weekends. However, *who* is riding shifts entirely: Registered users commute on workdays, while Casual users swarm on weekends.
+**Impact Hypothesis:** Operations can anticipate a steady macro-volume of daily maintenance, but station rebalancing routes must be completely overhauled on Friday evenings to transition from business-district hubs to recreational hubs (parks, monuments).
+
+#### 2. Extreme Weather Sensitivity
+**Finding:** Heavy precipitation drops rentals to near-zero (e.g., Hurricane Sandy resulted in just 22 rentals), and even light precipitation causes a statistically significant drop-off.
+**Impact Hypothesis:** Real-time weather API integration can perfectly trigger dynamic staffing. On high-rain forecast days, ground staffing for bike repositioning should be minimized to save operational costs.
+
+#### 3. Temperature > Humidity/Wind
+**Finding:** Temperature has a 0.63 positive correlation with ridership, making it the single strongest continuous predictor of demand, far outweighing wind or humidity.
+**Impact Hypothesis:** Marketing campaigns to convert Casual riders to Registered subscribers will see the highest ROI when launched on the first warm days of early Spring, capturing users when their willingness-to-ride is naturally peaking.
+
+#### 4. Bimodal Workday Demand
+**Finding:** Workdays show extremely sharp usage spikes at 8 AM and 5 PM.
+**Impact Hypothesis:** If station docks empty out at 8 AM, commuters will churn. The operations team must prioritize high-frequency dock-clearing specifically between 7.30 AM and 9 AM in business districts.
+
+#### 5. Year-over-Year Growth Indicates Undersupply Risk
+**Finding:** 2012 saw massively higher baseline ridership than 2011, without changing the fundamental temporal shapes of demand curves.
+**Impact Hypothesis:** The system is growing rapidly. If infrastructure (number of bikes, dock capacities) doesn't scale proportionally with this YoY trend, the system will hit a cap space bottleneck during peak Fall commute hours. 
+
 
 ## Project Documents
 
