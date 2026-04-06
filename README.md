@@ -469,6 +469,30 @@ We utilized One-Way ANOVA to validate whether variance in the total rental count
 **Impact Hypothesis:** The system is growing rapidly. If infrastructure (number of bikes, dock capacities) doesn't scale proportionally with this YoY trend, the system will hit a cap space bottleneck during peak Fall commute hours. 
 
 
+## Week 8: Machine Learning Modeling
+
+Based on the Product Requirements Document (PRD), we implemented three distinct machine learning models designed to drive capacity planning, actionable marketing, and operational anomaly detection. 
+
+### 1. Demand Prediction (Random Forest)
+- **Goal**: Predict the exact total number of bikes (`cnt`) that will be rented in the upcoming hour.
+- **Features Used**: Hour, season, weather situation, temperature, and working day status.
+- **Why Random Forest?**: It seamlessly handles the mix of categorical (weather, season) and continuous (temperature) variables while managing non-linear temporal relationships without excessive tuning.
+- **Performance**: The model achieved an $R^2$ score of ~**0.78**, successfully explaining 78.5% of the total variance in hourly bike demand with an RMSE of 82.6 rides.
+
+### 2. User Type Classifier (Logistic Regression)
+- **Goal**: Predict whether the demand for a given hour will be driven primarily by **Casual** users or **Registered** subscribers.
+- **Features Used**: Hour, season, weather situation, and holiday status.
+- **Why Logistic Regression?**: Highly interpretable, lightweight, robust, and perfect for binary classification of dominant demographic behavior.
+- **Performance**: Achieved **98.1%** accuracy, correctly logging Registered commuters as the continuous macro-dominant baseline.
+
+### 3. Anomaly Detection (Isolation Forest)
+- **Goal**: Automatically flag highly unusual demand hours (e.g., sudden unpredictable spikes or systemic failures).
+- **Features Used**: Hourly expected ride counts (`cnt`).
+- **Why Isolation Forest?**: Operations teams need unsupervised, scalable methods to be alerted exactly when current utilization significantly deviates from the expected norm without manual thresholding.
+- **Performance**: The algorithm successfully identified **171** anomalies (the most extreme ~1% of hours in the dataset), mapping perfectly to massive, isolated peak commute surges.
+
+---
+
 ## Project Documents
 
 | Document | Location |
