@@ -7,3 +7,4 @@ venv/
 env/
 # Avoid pushing the local datasets if they are considered external or too large
 # But in this case, the user seems to have them in the repo
+Models/*.pkl
