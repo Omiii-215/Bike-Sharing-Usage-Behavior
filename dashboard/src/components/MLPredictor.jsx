@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrainCircuit, Activity } from 'lucide-react';
+import { BrainCircuit, Activity, Cpu } from 'lucide-react';
 
 const MLPredictor = () => {
   const [form, setForm] = useState({
@@ -19,7 +19,6 @@ const MLPredictor = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Execute 2 concurrent secure backend requests
       const [demandRes, userRes] = await Promise.all([
         fetch('http://localhost:8000/predict/demand', {
           method: 'POST',
@@ -39,90 +38,103 @@ const MLPredictor = () => {
       setDemandResult(demandData.predicted_demand);
       setUserResult(userData.dominant_user_type);
     } catch (err) {
-      console.error("Inference Error:", err);
-      alert("Failed to hit FastAPI backend. Is it running alongside Vite?");
+      console.error("FastAPI Target Error:", err);
+      alert("Failed backend resolution. Ensure Uvicorn server is running locally on port 8000.");
     }
     setLoading(false);
   };
 
-  const inputStyle = {
-    background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid var(--border-color)', 
-    padding: '10px 14px', borderRadius: '8px', boxSizing: 'border-box', outline: 'none', width: '100%', 
-    fontSize: '1rem', marginTop: '6px'
-  };
-
   return (
-    <div className="glass-card card-wide animate-fade-in" style={{padding: '30px 40px'}}>
-      <div style={{display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px'}}>
-        <div style={{background: 'rgba(138, 43, 226, 0.1)', padding: '12px', borderRadius: '12px'}}>
-          <BrainCircuit color="var(--accent-purple)" size={28} />
+    <div className="neo-card card-wide animate-fade-in" style={{display: 'flex', flexDirection: 'column', gap: '30px'}}>
+      
+      <div style={{display: 'flex', alignItems: 'flex-start', gap: '20px'}}>
+        <div className="neo-icon-well">
+          <BrainCircuit color="var(--accent-primary)" size={32} />
         </div>
         <div>
-          <h2 style={{fontSize: '1.6rem', marginBottom: '4px'}}>Machine Learning Predictor</h2>
-          <p style={{color: 'var(--text-secondary)', fontSize: '0.95rem'}}>Interactive Real-Time Inference using Random Forest & Logistic Regression</p>
+          <h2 className="font-display" style={{fontSize: '1.8rem', marginBottom: '8px'}}>AI Usage Predictor</h2>
+          <p style={{fontSize: '1.1rem', maxWidth: '1100px'}}>
+             Ever wonder how busy the bikes will be depending on the weather or the time of day? 
+             <br/><br/>
+             Use the tools below to set up your perfect test scenario. Pick the hour, the temperature, and the season! Once you hit the button, our smart <strong>Artificial Intelligence</strong> model will automatically look at your choices and predict exactly how many bikes will be rented out, and who will be riding them!
+          </p>
         </div>
       </div>
       
-      <div style={{display: 'flex', gap: '40px', flexWrap: 'wrap'}}>
-        <form onSubmit={handleSubmit} style={{flex: 1.5, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'}}>
-          <div>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Hour of Day (0-23)</label>
-            <input type="number" min="0" max="23" value={form.hr} onChange={e => setForm({...form, hr: parseInt(e.target.value)})} style={inputStyle} />
+      <div style={{display: 'flex', gap: '40px', flexWrap: 'wrap', marginTop: '20px'}}>
+        <form onSubmit={handleSubmit} style={{flex: 1.2, display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) minmax(200px, 1fr)', gap: '24px'}}>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+            <label style={{color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 600, paddingLeft: '5px'}}>Target Hour (0-23)</label>
+            <input type="number" min="0" max="23" className="neo-input" value={form.hr} onChange={e => setForm({...form, hr: parseInt(e.target.value)})} />
           </div>
-          <div>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Temperature (°C)</label>
-            <input type="number" step="0.1" value={form.temp_c} onChange={e => setForm({...form, temp_c: parseFloat(e.target.value)})} style={inputStyle} />
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+            <label style={{color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 600, paddingLeft: '5px'}}>Core Temperature (°C)</label>
+            <input type="number" step="0.1" className="neo-input" value={form.temp_c} onChange={e => setForm({...form, temp_c: parseFloat(e.target.value)})} />
           </div>
-          <div>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Season (1:Spring, 2:Summer, 3:Fall, 4:Winter)</label>
-            <select value={form.season} onChange={e => setForm({...form, season: parseInt(e.target.value)})} style={inputStyle}>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+            <label style={{color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 600, paddingLeft: '5px'}}>Environmental Season</label>
+            <select className="neo-input" value={form.season} onChange={e => setForm({...form, season: parseInt(e.target.value)})}>
               <option value="1">Spring</option><option value="2">Summer</option><option value="3">Fall</option><option value="4">Winter</option>
             </select>
           </div>
-          <div>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Weather (1:Clear, 4:Severe)</label>
-            <select value={form.weathersit} onChange={e => setForm({...form, weathersit: parseInt(e.target.value)})} style={inputStyle}>
-              <option value="1">Clear</option><option value="2">Misty</option><option value="3">Light Rain</option><option value="4">Severe Storm</option>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+            <label style={{color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 600, paddingLeft: '5px'}}>Atmospheric Code</label>
+            <select className="neo-input" value={form.weathersit} onChange={e => setForm({...form, weathersit: parseInt(e.target.value)})}>
+              <option value="1">Code 1 (Clear / Calm)</option>
+              <option value="2">Code 2 (Misty / Dark)</option>
+              <option value="3">Code 3 (Light Rain)</option>
+              <option value="4">Code 4 (Severe Anomaly)</option>
             </select>
           </div>
-          <div>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Working Day?</label>
-            <select value={form.workingday} onChange={e => setForm({...form, workingday: parseInt(e.target.value)})} style={inputStyle}>
-              <option value="1">Yes (Commute)</option><option value="0">No (Weekend/Holiday)</option>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+            <label style={{color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 600, paddingLeft: '5px'}}>Commuting Constraint</label>
+            <select className="neo-input" value={form.workingday} onChange={e => setForm({...form, workingday: parseInt(e.target.value)})}>
+              <option value="1">Active Workday Route</option><option value="0">Weekend Relaxation</option>
             </select>
           </div>
-          <div>
-            <label style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Holiday?</label>
-            <select value={form.holiday} onChange={e => setForm({...form, holiday: parseInt(e.target.value)})} style={inputStyle}>
-              <option value="0">No</option><option value="1">Yes</option>
+          
+          <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+            <label style={{color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 600, paddingLeft: '5px'}}>Holiday Exemption</label>
+            <select className="neo-input" value={form.holiday} onChange={e => setForm({...form, holiday: parseInt(e.target.value)})}>
+              <option value="0">Standard Volume</option><option value="1">Official Holiday</option>
             </select>
           </div>
-          <button type="submit" disabled={loading} style={{
-              gridColumn: '1 / -1', background: 'var(--accent-blue)', color: '#000', padding: '14px', 
-              fontSize: '1.2rem', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer', 
-              boxShadow: '0 4px 15px rgba(0, 210, 255, 0.4)', marginTop: '10px', transition: 'all 0.3s ease'
-          }}>
-            {loading ? "Running Inference..." : "Predict Demand & User Base"}
-          </button>
+
+          <div style={{gridColumn: '1 / -1', marginTop: '20px'}}>
+            <button type="submit" disabled={loading} className="neo-btn-primary" style={{width: '100%', fontSize: '1.2rem', padding: '20px'}}>
+              {loading ? "Establishing Py Socket & Executing .predict()..." : "Initialize ML Model Inferences"}
+            </button>
+          </div>
         </form>
 
-        <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '20px'}}>
-             <div className="glass-card" style={{flex: 1, padding: '30px', border: '1px solid rgba(0, 210, 255, 0.3)', background: 'rgba(0, 210, 255, 0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                 <span style={{color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem'}}>Predicted Total Demand</span>
-                 <strong style={{fontSize: '4rem', color: '#fff', textShadow: '0 0 20px rgba(0, 210, 255, 0.6)'}}>
-                    {demandResult !== null ? demandResult : "--"}
+        {/* Prediction Results Board */}
+        <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '24px'}}>
+             <div className="neo-inset-well" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '220px'}}>
+                 <span style={{color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem', fontWeight: 700}}>Random Forest Scaling Demand Outlier</span>
+                 <strong className="font-display" style={{fontSize: '4.5rem', color: 'var(--accent-primary)', marginTop: '5px'}}>
+                    {demandResult !== null ? demandResult.toLocaleString() : "---"}
                  </strong>
-                 <span style={{color: 'var(--accent-blue)', marginTop: '5px'}}><Activity size={16} style={{display: 'inline', verticalAlign: 'text-bottom'}}/> Random Forest Inference</span>
+                 <span style={{color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                    <Cpu size={16}/> Hardware Inference Output
+                 </span>
              </div>
              
-             <div className="glass-card" style={{flex: 1, padding: '30px', border: '1px solid rgba(138, 43, 226, 0.3)', background: 'rgba(138, 43, 226, 0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                 <span style={{color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem'}}>Dominant User Base</span>
-                 <strong style={{fontSize: '2.5rem', color: '#fff', textShadow: '0 0 20px rgba(138, 43, 226, 0.6)', marginTop: '10px'}}>
-                    {userResult !== null ? userResult : "--"}
+             <div className="neo-inset-well" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '220px'}}>
+                 <span style={{color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem', fontWeight: 700}}>Logistic Regression Target Cohort</span>
+                 <strong className="font-display" style={{fontSize: '3.5rem', color: 'var(--text-primary)', marginTop: '5px'}}>
+                    {userResult !== null ? userResult : "---"}
                  </strong>
-                 <span style={{color: 'var(--accent-purple)', marginTop: '15px'}}>Logistic Regression Inference</span>
+                 <span style={{color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                    <Activity size={16}/> Binary Demographic Classification
+                 </span>
              </div>
         </div>
+        
       </div>
     </div>
   );
