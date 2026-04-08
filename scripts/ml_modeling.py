@@ -8,7 +8,46 @@ from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classi
 import joblib
 
 def load_data(filepath):
-    print(f"Loading data from {filepath}...")
+    from supabase import create_client, Client
+    from dotenv import load_dotenv
+    
+    load_dotenv()
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
+    
+    if url and key:
+        print("Found Supabase credentials! Querying backend database...")
+        try:
+            supabase: Client = create_client(url, key)
+            
+            all_data = []
+            offset = 0
+            limit = 1000
+            
+            print("Paginating and downloading chunks from Supabase...")
+            while True:
+                response = supabase.table('bike_sharing_data').select('*').range(offset, offset + limit - 1).execute()
+                data = response.data
+                if not data:
+                    break
+                all_data.extend(data)
+                if len(data) < limit:
+                    break
+                offset += limit
+            
+            if all_data:
+                df = pd.DataFrame(all_data)
+                print(f"✅ Successfully loaded {len(df)} operational records directly from Supabase!")
+                return df
+            else:
+                print("⚠️ Connected to Supabase, but no data was returned! Did you run `upload_to_supabase.py` first?")
+                print(f"Falling back to local static file: {filepath}...\n")
+        except Exception as e:
+            print(f"⚠️ Failed to pull from Supabase ({e}). Ensure the table 'bike_sharing_data' is created and accessible.")
+            print(f"Falling back to local static file: {filepath}...\n")
+    else:
+        print(f"No Supabase credentials detected. Loading statically from {filepath}...")
+    
     df = pd.read_csv(filepath)
     return df
 
