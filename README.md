@@ -446,6 +446,8 @@ We utilized One-Way ANOVA to validate whether variance in the total rental count
 
 ## Week 7: Insight & Impact Summary
 
+*Note: In addition to the manual EDA findings below, we also generated programmatic dynamic insights directly querying our remote **Supabase** backend to satisfy the final PRD objectives around Capacity Planning and Marketing. View these findings in [`Reports/Insights_Summary.md`](Reports/Insights_Summary.md).*
+
 ### Top 5 Findings & Hypotheses
 
 #### 1. The "Counterbalancing" Effect of User Types
@@ -502,6 +504,8 @@ Based on the Product Requirements Document (PRD), we implemented three distinct 
 | Data Flow Diagram | `Diagrams/Data Flow Diagram.png` |
 | High-Level Design | `Diagrams/HLD - HIgh level Diagram.png` |
 | Low-Level Design | `Diagrams/LLD - Final.png` |
+| Supabase Machine Learning Script | `scripts/ml_modeling.py` |
+| Supabase Dynamic PRD Analytics | `Reports/Insights_Summary.md` |
 
 ---
 
