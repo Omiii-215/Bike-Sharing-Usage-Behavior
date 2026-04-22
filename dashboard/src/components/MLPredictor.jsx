@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BrainCircuit, Activity, Cpu } from 'lucide-react';
+import { BrainCircuit, Activity, Cpu, Lightbulb } from 'lucide-react';
+import { BarChart, Bar, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const MLPredictor = () => {
   const [form, setForm] = useState({
@@ -136,6 +137,59 @@ const MLPredictor = () => {
         </div>
         
       </div>
+
+      {demandResult !== null && userResult !== null && (
+        <div className="neo-card animate-fade-in" style={{marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px', animationDelay: '0.2s'}}>
+           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+              <div className="neo-icon-well"><Lightbulb color="var(--accent-primary)" size={24}/></div>
+              <h3 className="font-display" style={{fontSize: '1.5rem'}}>AI Insight & Reasoning</h3>
+           </div>
+           
+           <div style={{display: 'flex', gap: '40px', flexWrap: 'wrap'}}>
+              <div style={{flex: 1.2, display: 'flex', flexDirection: 'column', gap: '20px'}}>
+                 <div className="neo-inset-well" style={{padding: '24px'}}>
+                    <h4 className="font-display" style={{marginBottom: '12px', color: 'var(--text-primary)', fontSize: '1.2rem', letterSpacing: '0.5px'}}>Why this matters for your shop</h4>
+                    <p style={{color: 'var(--text-muted)', lineHeight: '1.7', fontSize: '1.05rem'}}>
+                       By anticipating exactly <strong>{demandResult}</strong> rentals, you can perfectly optimize staff shifts and bike maintenance schedules today. 
+                       Since the algorithm predicts <strong>{userResult}</strong> riders will dominate the hour, you can tailor your approach: 
+                       {userResult === 'Casual' ? ' focus on upselling helmets, water bottles, and scenic tour maps for ad-hoc riders.' : ' prioritize rapid checkouts, balancing stations near transit hubs, and focusing on commuter reliability.'}
+                    </p>
+                 </div>
+                 <div className="neo-inset-well" style={{padding: '24px'}}>
+                    <h4 className="font-display" style={{marginBottom: '12px', color: 'var(--text-primary)', fontSize: '1.2rem', letterSpacing: '0.5px'}}>How we analyzed the data</h4>
+                    <p style={{color: 'var(--text-muted)', lineHeight: '1.7', fontSize: '1.05rem'}}>
+                       Our <strong>Random Forest Regressor</strong> processes historical interactions between the temperature ({form.temp_c}°C), the exact hour ({form.hr}:00), and specific weather codes to scale the expected fleet utilization. Concurrently, a <strong>Logistic Regression</strong> model classifies the expected demographic by projecting these same variables against known commuter vs. tourist behavioral boundaries.
+                    </p>
+                 </div>
+              </div>
+
+              <div style={{flex: 1, minWidth: '350px', display: 'flex', flexDirection: 'column'}}>
+                 <div className="neo-inset-well" style={{flex: 1, padding: '24px', display: 'flex', flexDirection: 'column'}}>
+                    <h4 className="font-display" style={{textAlign: 'center', marginBottom: '20px', color: 'var(--text-primary)', fontSize: '1.1rem'}}>Relative Demand Intensity</h4>
+                    <div style={{flex: 1, minHeight: '220px'}}>
+                       <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={[
+                             { name: 'Quiet Hour', value: Math.max(20, Math.round(demandResult * 0.2)) },
+                             { name: 'Predicted Demand', value: demandResult },
+                             { name: 'Peak Hour Target', value: Math.max(demandResult * 1.5, 600) }
+                          ]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                             <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                             <RechartsTooltip cursor={{fill: 'rgba(0,0,0,0.02)'}} contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--bg-neumorphic)', boxShadow: 'var(--shadow-extruded)'}} />
+                             <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                               {
+                                 [0, 1, 2].map((index) => (
+                                   <Cell key={`cell-${index}`} fill={index === 1 ? 'var(--accent-primary)' : 'var(--text-muted)'} fillOpacity={index === 1 ? 1 : 0.3} />
+                                 ))
+                               }
+                             </Bar>
+                          </BarChart>
+                       </ResponsiveContainer>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 };
