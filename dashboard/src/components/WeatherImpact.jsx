@@ -2,6 +2,14 @@ import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { CloudRain } from 'lucide-react';
 
+// ==============================================================================
+// COMPONENT: WeatherImpact.jsx
+// Purpose: This component shows how different weather conditions affect bike rentals.
+// How it connects: It receives the dataset from App.jsx, groups the rides by the 
+// 'weathersit' (weather situation) code, and renders a PieChart showing the 
+// proportion of rides under each weather condition.
+// ==============================================================================
+
 const WeatherImpact = ({ data }) => {
   const chartData = useMemo(() => {
     const weather = [

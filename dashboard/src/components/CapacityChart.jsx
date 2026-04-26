@@ -2,6 +2,14 @@ import React, { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from 'lucide-react';
 
+// ==============================================================================
+// COMPONENT: CapacityChart.jsx
+// Purpose: This component visualizes the average hourly bike demand throughout the day.
+// It helps identify peak usage times (morning and evening rush hours).
+// How it connects: It receives the full dataset as a 'data' prop from App.jsx. 
+// It calculates the average rentals for each hour (0-23) and displays it using an AreaChart.
+// ==============================================================================
+
 const CapacityChart = ({ data }) => {
   const chartData = useMemo(() => {
     const hours = Array.from({length: 24}, (_, i) => ({ hr: i, riders: 0, count: 0 }));

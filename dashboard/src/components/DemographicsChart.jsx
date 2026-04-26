@@ -2,6 +2,15 @@ import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Users } from 'lucide-react';
 
+// ==============================================================================
+// COMPONENT: DemographicsChart.jsx
+// Purpose: This component visualizes the difference in ridership between 
+// Registered users (commuters) and Casual users (tourists/recreational) 
+// across different days of the week.
+// How it connects: It receives the raw 'data' array as a prop from App.jsx, 
+// aggregates the counts by day of the week, and displays them in a stacked BarChart.
+// ==============================================================================
+
 const DemographicsChart = ({ data }) => {
   const chartData = useMemo(() => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
