@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
 import joblib
 import pandas as pd
 import os
@@ -52,11 +53,20 @@ class UserTypeRequest(BaseModel):
     weathersit: int
     holiday: int
 
+class DemandRequestBatch(BaseModel):
+    requests: List[DemandRequest]
+
 @app.post("/predict/demand")
 def predict_demand(req: DemandRequest):
     df = pd.DataFrame([req.model_dump()])
     prediction = rf_model.predict(df)[0]
     return {"predicted_demand": max(0, round(prediction))}
+
+@app.post("/predict/demand_batch")
+def predict_demand_batch(batch: DemandRequestBatch):
+    df = pd.DataFrame([req.model_dump() for req in batch.requests])
+    predictions = rf_model.predict(df)
+    return {"predicted_demands": [max(0, round(p)) for p in predictions]}
 
 @app.post("/predict/usertype")
 def predict_user_type(req: UserTypeRequest):
