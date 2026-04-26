@@ -77,7 +77,7 @@ const MLPredictor = () => {
       if (batchData.predicted_demands) {
           const chartData = batchData.predicted_demands.map((demand, index) => ({
               name: `${String(index).padStart(2, '0')}:00`,
-              value: demand
+              "Predicted Bikes": demand
           }));
           setDailyDemand(chartData);
       }
@@ -143,8 +143,34 @@ const MLPredictor = () => {
                 else if ([51, 53, 55, 61, 63, 65, 71, 73, 75, 80, 81, 82].includes(wmoCode)) weathersit = 3;
                 else weathersit = 4;
             }
+        } else {
+            throw new Error("Weather API returned an error (likely future/unsupported date).");
         }
-    } catch (err) { console.warn("Could not fetch weather", err); }
+    } catch (err) { 
+        console.warn("Falling back to simulated weather curve:", err);
+        let baseTemp = 15;
+        if (season === 1) baseTemp = 5;
+        else if (season === 2) baseTemp = 15;
+        else if (season === 3) baseTemp = 28;
+        else if (season === 4) baseTemp = 18;
+        
+        const pseudoRandomCode = (day + month) % 4 === 0 ? 3 : ((day + month) % 3 === 0 ? 2 : 1);
+        
+        const simulatedHourlyTemp = Array.from({length: 24}, (_, i) => {
+             return Number((baseTemp + (Math.sin((i - 8) * Math.PI / 12) * 8)).toFixed(1));
+        });
+        const simulatedHourlyWeatherCode = Array.from({length: 24}, () => pseudoRandomCode === 3 ? 51 : (pseudoRandomCode === 2 ? 45 : 0));
+        
+        const mockHourly = {
+            time: Array.from({length: 24}, (_, i) => `${dateStr}T${String(i).padStart(2, '0')}:00`),
+            temperature_2m: simulatedHourlyTemp,
+            weathercode: simulatedHourlyWeatherCode
+        };
+        
+        setDailyWeather(mockHourly);
+        temp_c = mockHourly.temperature_2m[hrVal];
+        weathersit = pseudoRandomCode;
+    }
     
     setForm({ hr: hrVal, season, weathersit, temp_c, workingday, holiday });
     setIsFetchingWeather(false);
@@ -159,11 +185,22 @@ const MLPredictor = () => {
   const handleHourChange = (e) => {
     const newHr = parseInt(e.target.value);
     setHour(newHr);
-    if (dateOnly) {
-       fetchDerivedData(dateOnly, newHr);
-    } else {
-       setForm({...form, hr: newHr});
-    }
+    
+    setForm(prevForm => {
+        let temp_c = prevForm.temp_c;
+        let weathersit = prevForm.weathersit;
+
+        if (dailyWeather && dailyWeather.time && dailyWeather.time.length > newHr) {
+            temp_c = dailyWeather.temperature_2m[newHr];
+            const wmoCode = dailyWeather.weathercode[newHr];
+            if ([0, 1, 2, 3].includes(wmoCode)) weathersit = 1;
+            else if ([45, 48].includes(wmoCode)) weathersit = 2;
+            else if ([51, 53, 55, 61, 63, 65, 71, 73, 75, 80, 81, 82].includes(wmoCode)) weathersit = 3;
+            else weathersit = 4;
+        }
+        
+        return { ...prevForm, hr: newHr, temp_c, weathersit };
+    });
   };
 
   return (
@@ -250,28 +287,27 @@ const MLPredictor = () => {
           </div>
         </form>
 
-        {/* Prediction Results Board */}
-        <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '24px'}}>
+        {/* Prediction Results Board */}         <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '24px'}}>
              <div className="neo-inset-well" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '220px'}}>
-                 <span style={{color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem', fontWeight: 700}}>Random Forest Scaling Demand Outlier</span>
+                 <span style={{color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem', fontWeight: 700}}>Predicted Total Rentals</span>
                  <strong className="font-display" style={{fontSize: '4.5rem', color: 'var(--accent-primary)', marginTop: '5px'}}>
                     {demandResult !== null ? demandResult.toLocaleString() : "---"}
                  </strong>
                  <span style={{color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                    <Cpu size={16}/> Hardware Inference Output
+                    <Cpu size={16}/> Estimated Total Bikes Needed
                  </span>
              </div>
              
              <div className="neo-inset-well" style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '220px'}}>
-                 <span style={{color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem', fontWeight: 700}}>Logistic Regression Target Cohort</span>
+                 <span style={{color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.85rem', fontWeight: 700}}>Main Rider Type</span>
                  <strong className="font-display" style={{fontSize: '3.5rem', color: 'var(--text-primary)', marginTop: '5px'}}>
                     {userResult !== null ? userResult : "---"}
                  </strong>
                  <span style={{color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px'}}>
-                    <Activity size={16}/> Binary Demographic Classification
+                    <Activity size={16}/> Expected User Majority
                  </span>
              </div>
-        </div>
+         </div>
         
       </div>
 
@@ -314,7 +350,7 @@ const MLPredictor = () => {
                              </defs>
                              <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val, i) => i % 2 === 0 ? val : ''} />
                              <RechartsTooltip cursor={{stroke: 'var(--text-muted)', strokeWidth: 1, strokeDasharray: '4 4'}} contentStyle={{backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--bg-neumorphic)', boxShadow: 'var(--shadow-extruded)'}} />
-                             <Area type="monotone" dataKey="value" stroke="var(--accent-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorDemand)" />
+                             <Area type="monotone" dataKey="Predicted Bikes" stroke="var(--accent-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorDemand)" />
                           </AreaChart>
                        </ResponsiveContainer>
                     </div>
