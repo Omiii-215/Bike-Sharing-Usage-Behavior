@@ -2,7 +2,20 @@ import React, { useState } from 'react';
 import { BrainCircuit, Activity, Cpu, Lightbulb } from 'lucide-react';
 import { AreaChart, Area, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
+// ==============================================================================
+// COMPONENT: MLPredictor.jsx
+// Purpose: This is the interactive interface for the Machine Learning models. 
+// It allows users to input specific parameters (date, hour, temperature, etc.) 
+// and get predictions for expected bike demand and primary user type.
+// How it connects: 
+// 1. It fetches real-time weather and holiday data from external APIs based on the selected date.
+// 2. It sends these parameters to the FastAPI backend (api.py) via POST requests.
+// 3. It displays the returned predictions from the Python ML models.
+// ==============================================================================
+
 const MLPredictor = () => {
+  // 1. State Variables
+  // 'form' holds the current input parameters selected by the user.
   const [form, setForm] = useState({
     hr: 12,
     season: 2,
@@ -21,10 +34,13 @@ const MLPredictor = () => {
   const [dailyDemand, setDailyDemand] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // 2. Submit Handler (handleSubmit)
+  // Executes when the user clicks to initialize ML inferences.
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); // Turn on the loading spinner
     try {
+      // Prepare a batch of 24 requests (one for each hour) to generate the daily forecast chart.
       let batchRequests = [];
       if (dailyWeather && dailyWeather.time.length >= 24) {
           for (let i = 0; i < 24; i++) {
@@ -49,6 +65,11 @@ const MLPredictor = () => {
           }
       }
 
+      // 3. API Calls to FastAPI backend (api.py)
+      // We use Promise.all to execute three prediction requests concurrently.
+      // 1. Demand: Predict bike count for the specific hour.
+      // 2. UserType: Predict dominant user type for the specific hour.
+      // 3. Demand Batch: Predict bike counts for all 24 hours.
       const [demandRes, userRes, batchRes] = await Promise.all([
         fetch('http://localhost:8000/predict/demand', {
           method: 'POST',
@@ -71,9 +92,12 @@ const MLPredictor = () => {
       const userData = await userRes.json();
       const batchData = await batchRes.json();
       
+      // 4. State Update
+      // Save the returned predictions to state to update the UI.
       setDemandResult(demandData.predicted_demand);
       setUserResult(userData.dominant_user_type);
       
+      // Format the 24-hour batch data for the Recharts AreaChart.
       if (batchData.predicted_demands) {
           const chartData = batchData.predicted_demands.map((demand, index) => ({
               name: `${String(index).padStart(2, '0')}:00`,
@@ -85,9 +109,12 @@ const MLPredictor = () => {
       console.error("FastAPI Target Error:", err);
       alert("Failed backend resolution. Ensure Uvicorn server is running locally on port 8000.");
     }
-    setLoading(false);
+    setLoading(false); // Turn off the loading spinner
   };
 
+  // 5. External Data Fetcher (fetchDerivedData)
+  // Automatically fetches weather data (Open-Meteo API) and holiday data (Nager.Date API) 
+  // based on the user's selected date, populating the form automatically.
   const fetchDerivedData = async (dateStr, hrVal) => {
     if (!dateStr) return;
 
