@@ -14,8 +14,12 @@ const EDAGallery = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Determine API URL based on environment (Vite dev server vs production)
+  const API_BASE = import.meta.env.DEV ? 'http://localhost:8000' : '';
+
   useEffect(() => {
-    fetch('http://localhost:8000/api/images')
+    // Fetches the list of image filenames from the backend
+    fetch(`${API_BASE}/api/images`)
       .then(res => res.json())
       .then(data => {
         setImages(data.images || []);
@@ -87,7 +91,7 @@ const EDAGallery = () => {
                   return (
                      <div key={file} className="neo-inset-well" style={{padding: '16px', display: 'flex', flexDirection: 'column', gap: '15px'}}>
                          <img 
-                           src={`http://localhost:8000/static/${file}`} 
+                           src={`${API_BASE}/static/${file}`} 
                            alt={file} 
                            style={{width: '100%', height: 'auto', borderRadius: '12px', boxShadow: 'var(--shadow-extruded-small)'}} 
                          />

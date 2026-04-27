@@ -119,7 +119,19 @@ def predict_user_type(req: UserTypeRequest):
     dominant = "Casual" if prediction == 1 else "Registered"
     return {"dominant_user_type": dominant}
 
-@app.get("/")
+@app.get("/health")
 def health():
     # Standard health check endpoint to verify backend operational status.
     return {"status": "healthy", "message": "ML FastAPI Backend is Operational."}
+
+# ==============================================================================
+# FRONTEND INTEGRATION
+# Serve the compiled React application from the 'dist' directory.
+# This allows a monolithic deployment (single server for both frontend and backend).
+# ==============================================================================
+frontend_dist_path = os.path.join(base_dir, 'dashboard', 'dist')
+if os.path.exists(frontend_dist_path):
+    # html=True automatically serves index.html for the root '/' path.
+    app.mount("/", StaticFiles(directory=frontend_dist_path, html=True), name="frontend")
+else:
+    print(f"Warning: Frontend build directory not found at {frontend_dist_path}. Run 'npm run build' in the dashboard directory.")

@@ -34,6 +34,9 @@ const MLPredictor = () => {
   const [dailyDemand, setDailyDemand] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Determine API URL based on environment (Vite dev server vs production)
+  const API_BASE = import.meta.env.DEV ? 'http://localhost:8000' : '';
+
   // 2. Submit Handler (handleSubmit)
   // Executes when the user clicks to initialize ML inferences.
   const handleSubmit = async (e) => {
@@ -71,17 +74,17 @@ const MLPredictor = () => {
       // 2. UserType: Predict dominant user type for the specific hour.
       // 3. Demand Batch: Predict bike counts for all 24 hours.
       const [demandRes, userRes, batchRes] = await Promise.all([
-        fetch('http://localhost:8000/predict/demand', {
+        fetch(`${API_BASE}/predict/demand`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ hr: form.hr, season: form.season, weathersit: form.weathersit, temp_c: form.temp_c, workingday: form.workingday })
         }),
-        fetch('http://localhost:8000/predict/usertype', {
+        fetch(`${API_BASE}/predict/usertype`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ hr: form.hr, season: form.season, weathersit: form.weathersit, holiday: form.holiday })
         }),
-        fetch('http://localhost:8000/predict/demand_batch', {
+        fetch(`${API_BASE}/predict/demand_batch`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ requests: batchRequests })
