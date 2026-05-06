@@ -277,8 +277,7 @@ const MLPredictor = () => {
                 type="range" 
                 min="0" 
                 max="23" 
-                className="neo-input" 
-                style={{padding: '16px 0', cursor: 'pointer', accentColor: 'var(--accent-primary)'}}
+                className="neo-range" 
                 value={hour} 
                 onChange={handleHourChange} 
               />
